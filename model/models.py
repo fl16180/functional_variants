@@ -35,9 +35,9 @@ class ClfMetrics(Callback):
         self.val_f1s.append(_val_f1)
         self.val_aupr.append(_val_aupr)
         self.val_auroc.append(_val_auroc)
-        # print(" — val_f1: %f" %(_val_f1))
-        # print(" — val_aupr: %f" %(_val_aupr))
-        # print(" — val_auroc: %f" %(_val_auroc))
+        print(" — val_f1: %f" %(_val_f1))
+        print(" — val_aupr: %f" %(_val_aupr))
+        print(" — val_auroc: %f" %(_val_auroc))
         return
 
 
@@ -105,7 +105,7 @@ class BaseModel:
                             shuffle=True,
                             callbacks=callbacks,
                             class_weight=class_weight,
-                            verbose=0)
+                            verbose=1)
 
     def predict(self, X):
         return self.model.predict(X)

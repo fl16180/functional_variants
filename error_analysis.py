@@ -36,12 +36,12 @@ df_tsne['Predicted'] = (df_tsne['Score'] > 0.03).astype(int)
 tsne1 = sns.lmplot(x='tsne-1', y='tsne-2', data=df_tsne, hue='Label', fit_reg=False, palette='Set2')
 plt.title('t-SNE components by true label')
 fig = tsne1.fig
-fig.savefig('./f1.png', dpi=150, bbox_inches='tight')
+fig.savefig(join(cfg.OUTPUT_DIR, 'f1.png'), dpi=150, bbox_inches='tight')
 
 tsne2 = sns.lmplot(x='tsne-1', y='tsne-2', data=df_tsne, hue='Predicted', fit_reg=False, palette='Set2')
 plt.title('t-SNE components by predicted label, threshold=0.03')
 fig = tsne2.fig
-fig.savefig('./f2.png', dpi=150, bbox_inches='tight')
+fig.savefig(join(cfg.OUTPUT_DIR, 'f2.png'), dpi=150, bbox_inches='tight')
 
 
 
@@ -89,4 +89,4 @@ axes[1].set_ylim([60,0])
 axes[1].set_yticks([60,0])
 axes[1].tick_params(axis='x', length=0, width=0, labelsize=11)
 fig.set_size_inches(8,5)
-fig.savefig('./err.png', dpi=150, bbox_inches='tight')
+fig.savefig(join(cfg.OUTPUT_DIR, 'err.png'), dpi=150, bbox_inches='tight')
