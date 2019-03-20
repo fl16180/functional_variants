@@ -1,3 +1,7 @@
+''' generates figures used in project report.
+Requires seaborn and matplotlib which are not required in environment. '''
+
+
 from os.path import join
 import numpy as np
 import pandas as pd

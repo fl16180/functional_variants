@@ -15,7 +15,9 @@ from experiments.best_params import *
 
 
 def splits_single_model(data, params, mod):
-
+    ''' Fits model on iterated train-dev sets (3x) and returns metrics.
+        mod: one of 'mpra', 'seq', or 'lr-bench' for logistic benchmark.
+    '''
     trials = {}
     for i, seed in enumerate([100, 200, 300]):
         train, dev = split_train_test(data, test_frac=0.2, seed=seed)
@@ -34,7 +36,8 @@ def splits_single_model(data, params, mod):
 
 
 def train_model(train, dev, params, return_probs=False):
-
+    ''' trains a model on input train and dev dataset, with parameter dictionary params.
+    '''
     X_train = train.drop(['chr', 'pos', 'rs', 'Label'], axis=1)
     y_train = train.Label.values
     X_dev = dev.drop(['chr', 'pos', 'rs', 'Label'], axis=1)
@@ -137,25 +140,25 @@ if __name__ == '__main__':
     data = load_train_set(dataset='E116')
 
     print('------ Iterated train-dev performances ------')
-    # print('Baseline: ')
-    # params = get_baseline_params()
-    # trials = splits_single_model(data, params, mod='mpra')
-    # summarize_results(trials)
-    #
-    # print('\nDense: ')
-    # params = get_dense_params()
-    # trials = splits_single_model(data, params, mod='mpra')
-    # summarize_results(trials)
-    #
-    # print('\nPartially Connected: ')
-    # params = get_pc_params()
-    # trials = splits_single_model(data, params, mod='mpra')
-    # summarize_results(trials)
-    #
-    # print('\nVAT: ')
-    # params = get_vat_params()
-    # trials = splits_single_model(data, params, mod='mpra')
-    # summarize_results(trials)
+    print('Baseline: ')
+    params = get_baseline_params()
+    trials = splits_single_model(data, params, mod='mpra')
+    summarize_results(trials)
+
+    print('\nDense: ')
+    params = get_dense_params()
+    trials = splits_single_model(data, params, mod='mpra')
+    summarize_results(trials)
+
+    print('\nPartially Connected: ')
+    params = get_pc_params()
+    trials = splits_single_model(data, params, mod='mpra')
+    summarize_results(trials)
+
+    print('\nVAT: ')
+    params = get_vat_params()
+    trials = splits_single_model(data, params, mod='mpra')
+    summarize_results(trials)
 
     params = get_baseline_params()
     trials = splits_single_model(data, params, mod='lr-bench')
@@ -166,28 +169,28 @@ if __name__ == '__main__':
     test = load_test_set(dataset='E116')
 
     print('------ Evaluate train-test performances ------')
-    # print('Baseline: ')
-    # # params = get_baseline_params()
-    # # evaluate_model(data, test, params, mod='mpra')
-    #
-    # print('\nDense: ')
-    # params = get_dense_params()
-    # evaluate_model(data, test, params, mod='mpra')
-    #
-    # print('\nPartially Connected: ')
-    # params = get_pc_params()
-    # evaluate_model(data, test, params, mod='mpra')
-    #
-    # print('\nVAT: ')
-    # params = get_vat_params()
-    # evaluate_model(data, test, params, mod='mpra')
+    print('Baseline: ')
+    params = get_baseline_params()
+    evaluate_model(data, test, params, mod='mpra')
+
+    print('\nDense: ')
+    params = get_dense_params()
+    evaluate_model(data, test, params, mod='mpra')
+
+    print('\nPartially Connected: ')
+    params = get_pc_params()
+    evaluate_model(data, test, params, mod='mpra')
+
+    print('\nVAT: ')
+    params = get_vat_params()
+    evaluate_model(data, test, params, mod='mpra')
 
     params = get_baseline_params()
     evaluate_model(data, test, params, mod='lr-bench')
 
-    #
-    # # save predictions for test set with dense net
-    # params = get_dense_params()
-    # X_probs = train_model(data, test, params, return_probs=True)
-    # test['Score'] = X_probs
-    # test.to_csv(join(cfg.OUTPUT_DIR, 'scores.csv'), index=False)
+
+    # save predictions for test set with dense net
+    params = get_dense_params()
+    X_probs = train_model(data, test, params, return_probs=True)
+    test['Score'] = X_probs
+    test.to_csv(join(cfg.OUTPUT_DIR, 'scores.csv'), index=False)

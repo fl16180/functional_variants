@@ -18,48 +18,6 @@ def get_baseline_params():
     return params
 
 
-# use this setting as a hparam example
-# def get_dense_params():
-#     params = {}
-#     params['n_hidden'] = 2
-#     params['n1'] = 300
-#     params['n2'] = 100
-#     params['use_drop'] = 1
-#     params['drop1'] = 0.65
-#     params['drop2'] = 0.5
-#     params['lambda'] = 0
-#     params['learning_rate'] = 0.0001
-#     params['epochs'] = 20
-#     params['batch_size'] = 256
-#     params['weight_1'] = 3.
-#     params['hidden_activation'] = 'sigmoid'
-#     params['use_vat'] = 0
-#
-#     return params
-
-
-# def get_test_params():
-#     params = {}
-#     params['n_hidden'] = 2
-#     params['n1'] = 200
-#     params['n2'] = 100
-#     params['use_drop'] = 1
-#     params['drop1'] = 0.024
-#     params['drop2'] = 0.1
-#     params['lambda'] = 0.00048
-#     params['learning_rate'] = 0.00008
-#     params['epochs'] = 25
-#     params['batch_size'] = 256
-#     params['weight_1'] = 3.
-#     params['hidden_activation'] = 'sigmoid'
-#     params['use_vat'] = 0
-#     params['eps'] = 1
-#     params['xi'] = 10
-#     params['ip'] = 1
-#
-#     return params
-
-
 def get_dense_params():
     params = {}
     params['n_hidden'] = 2

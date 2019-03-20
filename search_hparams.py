@@ -98,12 +98,18 @@ def get_random_params_vat():
     return params
 
 
-def execute_random_search(data, outfile, iterations):
+def execute_random_search(data, outfile, iterations, param_fn):
+    ''' runs random search for user-specified number of iterations.
+        Preinitializes random parameters and fits models on fixed seed
+        train/dev splits using the splits_single_model function.
 
+        data: input (training) dataset
+        outfile: output csv
+    '''
     all_results = pd.DataFrame()
     param_storage = []
 
-    random_param_list = [get_random_params_vat() for _ in range(iterations)]
+    random_param_list = [param_fn() for _ in range(iterations)]
     for iter in range(iterations):
         print('Iteration {0}: '.format(iter))
 
@@ -125,4 +131,4 @@ if __name__ == '__main__':
     data = load_train_set(dataset='E116')
     outfile = join(cfg.OUTPUT_DIR, 'hparams_vat2.csv')
 
-    execute_random_search(data, outfile=outfile, iterations=30)
+    execute_random_search(data, outfile=outfile, iterations=50, param_fn=get_random_params_vat)

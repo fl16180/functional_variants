@@ -9,7 +9,7 @@ from model.data_loaders import load_train_set, load_test_set
 
 
 def load_labeled_data(dataset):
-
+    ''' processes MPRA dataset and benchmarks '''
     data = pd.read_csv(os.path.join(cfg.VARIANTS_DIR, dataset[0]), delimiter="\t")
     bench = pd.read_csv(os.path.join(cfg.VARIANTS_DIR, dataset[1]), delimiter="\t")
 
@@ -44,6 +44,7 @@ def load_labeled_data(dataset):
 
 
 def convert_seq_fa_to_df(loc):
+    ''' converts DNA sequences around variants into dataframe '''
     chr_list = []
     pos1_list = []
     pos2_list = []
@@ -74,7 +75,8 @@ def convert_seq_fa_to_df(loc):
 
 
 def merge_seq_with_mpra(dataset):
-
+    ''' converts DNA sequences around variants into dataframe, merges with MPRA
+        train and test sets '''
     train = load_train_set(dataset)
     test = load_test_set(dataset)
 

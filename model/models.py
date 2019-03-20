@@ -15,7 +15,9 @@ from utils.metrics import f1, auroc, metric_report, avgPR
 
 
 class ClfMetrics(Callback):
-
+    ''' Keras callback to define validation metric. Here I use F1, AUPR, and AUROC.
+    These metrics are cleanly defined over the entire validation set which I use, but not
+    over sequences of batches, so Keras requires a callback to compute them.  '''
     def on_train_begin(self, logs={}):
         self.val_f1s = []
         self.val_aupr = []
@@ -110,7 +112,8 @@ class BaseModel:
 
 
 class PartialModel(BaseModel):
-
+    ''' partially connected hidden layer grouping epigenetic markers over tissues of a given type
+    '''
     def network(self, input_layer):
 
         npc = self.params['npc']
@@ -140,7 +143,8 @@ class PartialModel(BaseModel):
 
 
 class VATModel(Model):
-    ''' implementation adapted from '''
+    ''' implementation adapted from
+    https://gist.github.com/mokemokechicken/2658d036c717a3ed07064aa79a59c82d'''
     _vat_loss = None
 
     def setup_vat_loss(self, eps=1, xi=10, ip=1):

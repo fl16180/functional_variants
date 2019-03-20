@@ -1,3 +1,6 @@
+''' Functions for extracting epigenetic features from bigwig files given input bed file with
+genomic locations. '''
+
 from subprocess import call
 import glob
 import os

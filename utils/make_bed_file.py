@@ -1,3 +1,5 @@
+''' Generates bed files from data or randomly sampled from genome '''
+
 import sys
 from os.path import join
 import pandas as pd
