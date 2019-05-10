@@ -23,7 +23,7 @@ The goal is to predict whether each candidate variant is functional. The config.
 ### Steps
 Run ```python data_setup.py``` to process the dataset and split into train/test sets.
 
-Run ```python train_and_evaluate.py``` to fit the tuned models and evalaute their performances.
+Run ```python train_and_evaluate.py``` to fit the tuned models and evaluate their performances.
 
 ### Modifications
 
