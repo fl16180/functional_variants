@@ -42,6 +42,8 @@ def get_dense_params():
 
     params['use_pc'] = 0
 
+    params['use_clust'] = 0
+
     return params
 
 
@@ -71,6 +73,40 @@ def get_pc_params():
     params['use_pc'] = 1
     params['npc'] = 100
 
+    params['use_clust'] = 0
+
+    return params
+
+
+def get_clust_params():
+    params = {}
+    params['n_hidden'] = 2
+    params['n1'] = 250
+    params['n2'] = 180
+
+    params['use_drop'] = 1
+    params['pc_drop'] = 0
+    params['drop1'] = 0.4
+    params['drop2'] = 0.5
+
+    params['lambda'] = 0
+    params['learning_rate'] = 0.001
+    params['epochs'] = 60
+    params['batch_size'] = 512
+    params['weight_1'] = 3.
+    params['hidden_activation'] = 'sigmoid'
+
+    params['use_vat'] = 0
+    params['eps'] = 1
+    params['xi'] = 10
+    params['ip'] = 1
+
+    params['use_pc'] = 0
+
+    params['use_clust'] = 1
+    params['n_clusters'] = 20
+    params['npc'] = 15
+
     return params
 
 
@@ -97,6 +133,9 @@ def get_vat_params():
     params['ip'] = 1
 
     params['use_pc'] = 0
+
+    params['use_clust'] = 0
+
     return params
 
 
@@ -121,4 +160,7 @@ def get_seq_params():
     params['ip'] = 1
 
     params['use_pc'] = 0
+
+    params['use_clust'] = 0
+
     return params

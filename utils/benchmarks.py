@@ -34,7 +34,7 @@ def logistic_benchmark(train, dev):
     X_train = scaler.fit_transform(X_train)
     X_dev = scaler.transform(X_dev)
 
-    clf = LogisticRegressionCV(Cs=5, cv=3, max_iter=500)
+    clf = LogisticRegressionCV(Cs=5, cv=3, max_iter=1000)
     clf.fit(X_train, y_train)
 
     train_pred = clf.predict(X_train)

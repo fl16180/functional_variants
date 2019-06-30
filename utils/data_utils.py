@@ -34,11 +34,13 @@ def split_train_dev_test(data, dev_frac, test_frac, seed=None):
 
 
 def rearrange_by_epigenetic_marker(df):
-    new_cols = []
-    for m in range(8):
-        idx = [i for i in range(m, 1016, 8)]
-        new_cols.extend(idx)
-    return df.iloc[:, new_cols]
+
+    marks = ['DNase','H3K27ac','H3K27me3','H3K36me3','H3K4me1','H3K4me3','H3K9ac','H3K9me3']
+    nums = [x for x in range(1, 130) if x not in [60, 64]]
+
+    cols = [x + '-E{:03d}'.format(y) for x in marks for y in nums]
+
+    return df.loc[:, cols]
 
 
 def downsample_negatives(train, p):

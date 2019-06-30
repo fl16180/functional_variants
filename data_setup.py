@@ -4,7 +4,7 @@ import numpy as np
 
 from config import Config as cfg
 from config import GenomeDatasets, SeqDatasets
-from utils.data_utils import split_train_test
+from utils.data_utils import split_train_test, rearrange_by_epigenetic_marker
 from model.data_loaders import load_train_set, load_test_set
 
 
@@ -89,6 +89,24 @@ def merge_seq_with_mpra(dataset):
     return train_seq, test_seq
 
 
+def add_valley_scores(dataset):
+    dataset='E116'
+    train = load_train_set(dataset)
+    test = load_test_set(dataset)
+
+    valley = pd.read_csv(os.path.join(cfg.DATA_DIR, 'bigwig', '{0}_valley.csv'.format(dataset)))
+    cols = valley.columns.values
+    new_cols = ['val' + x for x in cols]
+    new_cols[0] = 'variant'
+    valley.columns = new_cols
+
+    val_train = pd.merge(train[['chr','pos','rs','Label']], valley, left_on='rs', right_on='variant')
+    val_test = pd.merge(test[['chr','pos','rs','Label']], valley, left_on='rs', right_on='variant')
+
+    return val_train, val_test
+
+
+
 def build(dataset):
 
     os.makedirs(cfg.TRAIN_DIR, exist_ok=True)
@@ -100,12 +118,28 @@ def build(dataset):
     bench.to_csv(os.path.join(cfg.BENCH_DIR, '{0}_benchmarks.csv'.format(dataset)), index=False)
 
     train, test = split_train_test(data, test_frac=0.15, seed=100)
+    meta_train = train[['chr', 'pos', 'rs', 'Label']]
+    X_train = train.drop(['chr', 'pos', 'rs', 'Label'], axis=1)
+    X_train = rearrange_by_epigenetic_marker(X_train)
+    train = pd.concat([meta_train, X_train], axis=1)
+
+    meta_test = test[['chr', 'pos', 'rs', 'Label']]
+    X_test = test.drop(['chr', 'pos', 'rs', 'Label'], axis=1)
+    X_test = rearrange_by_epigenetic_marker(X_test)
+    test = pd.concat([meta_test, X_test], axis=1)
+
     train.to_csv(os.path.join(cfg.TRAIN_DIR, '{0}_train.csv'.format(dataset)), index=False)
     test.to_csv(os.path.join(cfg.TEST_DIR, '{0}_test.csv'.format(dataset)), index=False)
+
+    val_train, val_test = add_valley_scores(dataset)
+    val_train.to_csv(os.path.join(cfg.TRAIN_DIR, '{0}_valley_train.csv'.format(dataset)), index=False)
+    val_test.to_csv(os.path.join(cfg.TEST_DIR, '{0}_valley_test.csv'.format(dataset)), index=False)
 
     train_seq, test_seq = merge_seq_with_mpra(dataset)
     train_seq.to_csv(os.path.join(cfg.TRAIN_DIR, '{0}_seq_train.csv'.format(dataset)), index=False)
     test_seq.to_csv(os.path.join(cfg.TEST_DIR, '{0}_seq_test.csv'.format(dataset)), index=False)
+
+
 
 
 if __name__ == '__main__':

@@ -5,10 +5,10 @@ from sklearn.preprocessing import StandardScaler
 
 from config import Config as cfg
 from model.data_loaders import load_train_set, load_test_set, load_seq_train_set, load_seq_test_set
-from model.models import BaseModel, PartialModel
+from model.models import BaseModel, PartialModel, ClusterModel
 from model.seq_models import SeqModel, MergeModel, encode_seq
 from utils.metrics import auroc, avgPR
-from utils.data_utils import split_train_test, rearrange_by_epigenetic_marker, downsample_negatives
+from utils.data_utils import split_train_test
 from utils.param_utils import compute_averages, update_results, summarize_results
 from utils.benchmarks import get_benchmark_score, logistic_benchmark
 from experiments.best_params import *
@@ -43,11 +43,8 @@ def train_model(train, dev, params, return_probs=False):
     X_dev = dev.drop(['chr', 'pos', 'rs', 'Label'], axis=1)
     y_dev = dev.Label.values
 
-    X_train = rearrange_by_epigenetic_marker(X_train)
-    X_dev = rearrange_by_epigenetic_marker(X_dev)
-
-    # X_train = np.log(X_train)
-    # X_dev = np.log(X_dev)
+    X_train = np.log(X_train)
+    X_dev = np.log(X_dev)
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -56,6 +53,8 @@ def train_model(train, dev, params, return_probs=False):
     X_shape = (X_train.shape[1],)
     if params['use_pc'] == 1:
         mod = PartialModel(input_shape=X_shape, params=params).build()
+    elif params['use_clust'] == 1:
+        mod = ClusterModel(input_shape=X_shape, params=params).build(X_train)
     else:
         mod = BaseModel(input_shape=X_shape, params=params).build()
 
@@ -139,58 +138,65 @@ if __name__ == '__main__':
     # train models on iterated train-dev splits
     data = load_train_set(dataset='E116')
 
-    print('------ Iterated train-dev performances ------')
-    print('Baseline: ')
-    params = get_baseline_params()
-    trials = splits_single_model(data, params, mod='mpra')
-    summarize_results(trials)
-
-    print('\nDense: ')
-    params = get_dense_params()
-    trials = splits_single_model(data, params, mod='mpra')
-    summarize_results(trials)
-
-    print('\nPartially Connected: ')
-    params = get_pc_params()
-    trials = splits_single_model(data, params, mod='mpra')
-    summarize_results(trials)
-
-    print('\nVAT: ')
-    params = get_vat_params()
-    trials = splits_single_model(data, params, mod='mpra')
-    summarize_results(trials)
-
-    params = get_baseline_params()
-    trials = splits_single_model(data, params, mod='lr-bench')
-    summarize_results(trials)
+    # print('------ Iterated train-dev performances ------')
+    # print('Baseline: ')
+    # params = get_baseline_params()
+    # trials = splits_single_model(data, params, mod='mpra')
+    # summarize_results(trials)
+    #
+    # print('\nDense: ')
+    # params = get_dense_params()
+    # trials = splits_single_model(data, params, mod='mpra')
+    # summarize_results(trials)
+    #
+    # print('\nPartially Connected: ')
+    # params = get_pc_params()
+    # trials = splits_single_model(data, params, mod='mpra')
+    # summarize_results(trials)
+    #
+    # print('\nVAT: ')
+    # params = get_vat_params()
+    # trials = splits_single_model(data, params, mod='mpra')
+    # summarize_results(trials)
+    #
+    # print('\nLogistic baseline: ')
+    # params = get_baseline_params()
+    # trials = splits_single_model(data, params, mod='lr-bench')
+    # summarize_results(trials)
 
 
     # retrain models on entire train set and evaluate on test set
     test = load_test_set(dataset='E116')
 
     print('------ Evaluate train-test performances ------')
-    print('Baseline: ')
-    params = get_baseline_params()
+    # print('Baseline: ')
+    # params = get_baseline_params()
+    # evaluate_model(data, test, params, mod='mpra')
+    #
+    # print('\nDense: ')
+    # params = get_dense_params()
+    # evaluate_model(data, test, params, mod='mpra')
+
+    print('\nCluster: ')
+    params = get_clust_params()
     evaluate_model(data, test, params, mod='mpra')
 
-    print('\nDense: ')
-    params = get_dense_params()
-    evaluate_model(data, test, params, mod='mpra')
+    #
+    # print('\nPartially Connected: ')
+    # params = get_pc_params()
+    # evaluate_model(data, test, params, mod='mpra')
+    #
+    # print('\nVAT: ')
+    # params = get_vat_params()
+    # evaluate_model(data, test, params, mod='mpra')
 
-    print('\nPartially Connected: ')
-    params = get_pc_params()
-    evaluate_model(data, test, params, mod='mpra')
-
-    print('\nVAT: ')
-    params = get_vat_params()
-    evaluate_model(data, test, params, mod='mpra')
-
-    params = get_baseline_params()
-    evaluate_model(data, test, params, mod='lr-bench')
+    # print('\nLogistic baseline: ')
+    # params = get_baseline_params()
+    # evaluate_model(data, test, params, mod='lr-bench')
 
 
-    # save predictions for test set with dense net
-    params = get_dense_params()
-    X_probs = train_model(data, test, params, return_probs=True)
-    test['Score'] = X_probs
-    test.to_csv(join(cfg.OUTPUT_DIR, 'scores.csv'), index=False)
+    # # save predictions for test set with dense net
+    # params = get_dense_params()
+    # X_probs = train_model(data, test, params, return_probs=True)
+    # test['Score'] = X_probs
+    # test.to_csv(join(cfg.OUTPUT_DIR, 'scores.csv'), index=False)

@@ -1,5 +1,6 @@
 from functools import reduce
 import numpy as np
+from sklearn.cluster import KMeans
 
 from keras import regularizers, optimizers
 from keras.layers import Input, Dense, Dropout, Activation
@@ -10,6 +11,8 @@ from keras.callbacks import Callback
 from keras.utils.generic_utils import to_list
 from keras.utils import np_utils
 from keras import backend as K
+
+import tensorflow as tf
 
 from utils.metrics import f1, auroc, metric_report, avgPR
 
@@ -118,11 +121,80 @@ class PartialModel(BaseModel):
 
         npc = self.params['npc']
         activation = self.params['hidden_activation']
+        # Group_Dense = Dense(self.params['npc'], activation=activation)
 
         nodes = []
         for m in range(8):
             z = Lambda(lambda x: x[:, m*127:(m+1)*127], output_shape=(127,))(input_layer)
+
             z = Dense(self.params['npc'], activation=activation)(z)
+            # z = Group_Dense(z)
+
+            if self.params['pc_drop'] > 0:
+                z = Dropout(self.params['pc_drop'])(z)
+            nodes.append(z)
+
+        X = Concatenate()(nodes)
+        X = Dense(self.params['n1'], activation=activation)(X)
+        if self.dropout:
+            X = Dropout(rate=self.params['drop1'])(X)
+
+        if self.params['n_hidden'] == 3:
+            X = Dense(self.params['n2'], activation=activation)(X)
+            if self.dropout:
+                X = Dropout(rate=self.params['drop2'])(X)
+
+        X = Dense(1, activation='sigmoid')(X)
+
+        return X
+
+
+class ClusterModel(BaseModel):
+
+    def __init__(self, input_shape, params):
+        self.input_shape = input_shape
+        self.params = params
+        self.vat = True if self.params['use_vat'] == 1 else False
+        self.dropout = True if self.params['use_drop'] == 1 else False
+
+    def build(self, X_train):
+
+        self.clusters = self._cluster_data(X_train)
+
+        input_layer = Input(self.input_shape)
+        output_layer = self.network(input_layer)
+        if self.vat:
+            eps = self.params['eps']
+            xi = self.params['xi']
+            ip = self.params['ip']
+            self.model = VATModel(input_layer, output_layer).setup_vat_loss(eps, xi, ip)
+        else:
+            self.model = Model(input_layer, output_layer)
+
+        return self
+
+    def _cluster_data(self, X_train):
+        n_clusters = self.params['n_clusters']
+        km = KMeans(n_clusters=n_clusters, n_init=5, max_iter=300, n_jobs=-1)
+        return km.fit_predict(X_train.T)
+
+    def network(self, input_layer):
+
+        n_clusters = self.params['n_clusters']
+        npc = self.params['npc']
+        activation = self.params['hidden_activation']
+
+        nodes = []
+        for m in range(n_clusters):
+            mask = np.where(self.clusters == m)[0]
+            n_nodes = len(mask)
+
+            # mask = tf.convert_to_tensor(mask, dtype=tf.int32)
+            z = Lambda(lambda x: tf.gather(x, mask, axis=1),
+                       output_shape=(n_nodes,))(input_layer)
+
+            z = Dense(self.params['npc'], activation=activation)(z)
+
             if self.params['pc_drop'] > 0:
                 z = Dropout(self.params['pc_drop'])(z)
             nodes.append(z)

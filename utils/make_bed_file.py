@@ -4,6 +4,8 @@ import sys
 from os.path import join
 import pandas as pd
 import numpy as np
+from config import Config as cfg
+from data_setup import load_labeled_data, GenomeDatasets
 
 
 GenRange = {1: 248e6, 2: 242e6, 3: 198e6, 4: 190e6,
@@ -20,18 +22,16 @@ def pull_bed_data(df):
     return bed
 
 
-def mpra_to_bed(data_dir):
-
-    fin = 'E116_train.csv'
+def mpra_to_bed():
+    data, bench = load_labeled_data(GenomeDatasets['E116'])
     fout = 'E116.bed'
 
-    data = pd.read_csv(join(data_dir, fin))
     bed = pull_bed_data(data)
     bed['chr'] = bed['chr'].map(lambda x: 'chr{0}'.format(x))
     bed['pos1'] = bed['pos'] + 1
     bed = bed[['chr','pos','pos1','rs']]
 
-    bed.to_csv(join(data_dir, fout), sep='\t', index=False, header=False)
+    bed.to_csv(join(cfg.DATA_DIR, fout), sep='\t', index=False, header=False)
 
 
 def random_bed_for_semisup(data_dir, n_samples=200000):

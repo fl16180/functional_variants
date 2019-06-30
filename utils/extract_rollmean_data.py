@@ -37,15 +37,15 @@ def pull_command(mark, i, bedfile):
     call(command, shell=True)
 
 
-def features_to_csv():
-    os.chdir('./out')
-    features = glob.glob('*')
-
+def features_to_csv(feature_dir):
     import pandas as pd
+
+    os.chdir(feature_dir)
+    features = glob.glob('*')
 
     df = pd.DataFrame()
     for fn in features:
-
+        print(fn)
         tmp = pd.read_csv('./{0}'.format(fn), sep='\t', names=['variant','c1','c2','v1','v2','{0}'.format(fn)])
         tmp = tmp.drop(['c1','c2','v1','v2'], axis=1)
         df = pd.concat([df, tmp], axis=1)
@@ -56,11 +56,8 @@ def features_to_csv():
 
 if __name__ == '__main__':
 
-    bedfile = '/home/users/fredlu/E116.bed'
-    pull_features(bedfile)
+    # bedfile = '/home/users/fredlu/E116.bed'
+    # pull_features(bedfile)
 
-
-# DNase E060
-# DNase E064
-# H3K27ac E060
-# H3K27ac E064
+    feature_dir = 'C:/Users/fredl/Documents/datasets/functional_variants/bigwig/tmp/'
+    features_to_csv(feature_dir)
